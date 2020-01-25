@@ -52,6 +52,24 @@ function makeFuncSec(a) {
     ];
 }
 
+function makeExportSec(a) {
+    return [
+        0x07, // section id: export section
+        0x05, // section size
+        [
+            0x01, // length of vector
+            [
+                [
+                    0x01, // length of string(name)
+                    0x61, // 'a'
+                ], // "a"
+                0x00, // a function is exported
+                0x00, // index of exported function
+            ]
+        ]
+    ]
+}
+
 function makeCodeSec(a) {
     return [
         0x0a, // section id: code section
@@ -72,10 +90,12 @@ const bufferSource = u8tree2u8array([
     makeVersion(),
     makeTypeSec(),
     makeFuncSec(),
+    makeExportSec(),
     makeCodeSec()
 ]);
 
 const importObject = {};
+
 WebAssembly.instantiate(bufferSource, importObject).then(x => {
-    console.log(x)
+    console.log(x.instance.exports.a())
 });
