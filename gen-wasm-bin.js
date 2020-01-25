@@ -73,8 +73,17 @@ function makeTypeSec(fs) {
     return makeSection(0x01, body);
 }
 
+function makeFuncImport(f, typeIndex) {
+    return [ makeString(f.module), makeString(f.name), 0x00, typeIndex ];
+}
+
+function makeImportSec(fs) {
+    const body = makeVec(fs.map((f, i) => f.module ? makeFuncImport(f, i) : null).filter(x => x));
+    return makeSection(0x02, body);
+}
+
 function makeFuncSec(fs) {
-    const body = makeVec(fs.map((_, i) => i));
+    const body = makeVec(fs.map((f, i) => f.module ? null : [i]).filter(x => x));
     return makeSection(0x03, body);
 }
 
@@ -98,26 +107,24 @@ function makeCode(f) {
 }
 
 function makeCodeSec(fs) {
-    const body = makeVec(fs.map(makeCode));
+    const body = makeVec(fs.map(f => f.module ? null : makeCode(f)).filter(x => x));
     return makeSection(0x0a, body)
 }
 
 const functions = [
     {
-        exported: true,
-        name: "aa",
+        module: "x",
+        name: "y",
         param: [],
-        result: [0x7f], // (result i32)
-        locals: [],
-        code: [0x41, makeI32(0xff)] // (i32.const 255)
+        result: []
     },
     {
         exported: true,
-        name: "bb",
-        param: [0x7f], // (param i32)
-        result: [0x7f], // (result i32)
+        name: "aa",
+        param: [],
+        result: [],
         locals: [],
-        code: [0x20, 0x00] // (local.get 0)
+        code: [0x10, 0x00] // (call the 0th function)
     }
 ]
 
@@ -125,14 +132,18 @@ const bufferSource = u8tree2u8array([
     makeMagic(),
     makeVersion(),
     makeTypeSec(functions),
+    makeImportSec(functions),
     makeFuncSec(functions),
     makeExportSec(functions),
     makeCodeSec(functions)
 ]);
 
-const importObject = {};
+const importObject = {
+    x: {
+        y: () => console.log("OK")
+    }
+};
 
 WebAssembly.instantiate(bufferSource, importObject).then(x => {
-    console.log(x.instance.exports.aa())
-    console.log(x.instance.exports.bb(11))
+    x.instance.exports.aa()
 });
