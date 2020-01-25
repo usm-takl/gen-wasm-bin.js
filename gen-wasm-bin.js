@@ -39,10 +39,40 @@ function makeTypeSec() {
     ]
 }
 
+function makeFuncSec(a) {
+    return [
+        0x03, // section id: function section
+        0x02, // section size
+        [
+            0x01, // length of vector
+            [
+                0x00, // function
+            ]
+        ]
+    ];
+}
+
+function makeCodeSec(a) {
+    return [
+        0x0a, // section id: code section
+        0x04, // section size
+        [
+            0x01, // length of vector
+            [
+                0x02, // size of function body
+                0x00, // count of local decl
+                0x0b, // end
+            ]
+        ]
+    ];
+}
+
 const bufferSource = u8tree2u8array([
     makeMagic(),
     makeVersion(),
-    makeTypeSec()
+    makeTypeSec(),
+    makeFuncSec(),
+    makeCodeSec()
 ]);
 
 const importObject = {};
