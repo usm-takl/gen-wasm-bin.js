@@ -40,8 +40,12 @@ function makeSection(id, body) {
     return [id, countLeaves(body), body];
 }
 
-function makeTypeSec() {
-    const body = makeVec([[ 0x60, 0x00, 0x00 ]]);
+function makeFuncType(f) {
+    return [ 0x60, makeVec(f.param), makeVec(f.result) ];
+}
+
+function makeTypeSec(fs) {
+    const body = makeVec(fs.map(makeFuncType));
     return makeSection(0x01, body);
 }
 
@@ -60,10 +64,21 @@ function makeCodeSec(a) {
     return makeSection(0x0a, body);
 }
 
+const functions = [
+    {
+        exported: true,
+        name: "a",
+        param: [],
+        result: [],
+        locals: [],
+        code: []
+    }
+];
+
 const bufferSource = u8tree2u8array([
     makeMagic(),
     makeVersion(),
-    makeTypeSec(),
+    makeTypeSec(functions),
     makeFuncSec(),
     makeExportSec(),
     makeCodeSec()
