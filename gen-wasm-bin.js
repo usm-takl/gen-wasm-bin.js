@@ -81,13 +81,21 @@ function makeCodeSec(fs) {
 const functions = [
     {
         exported: true,
-        name: "a",
+        name: "aa",
         param: [],
-        result: [],
+        result: [0x7f], // (result i32)
         locals: [],
-        code: []
+        code: [0x41, 0x01] // (i32.const 1)
+    },
+    {
+        exported: true,
+        name: "bb",
+        param: [0x7f], // (param i32)
+        result: [0x7f], // (result i32)
+        locals: [],
+        code: [0x20, 0x00] // (local.get 0)
     }
-];
+]
 
 const bufferSource = u8tree2u8array([
     makeMagic(),
@@ -101,5 +109,6 @@ const bufferSource = u8tree2u8array([
 const importObject = {};
 
 WebAssembly.instantiate(bufferSource, importObject).then(x => {
-    console.log(x.instance.exports.a())
+    console.log(x.instance.exports.aa())
+    console.log(x.instance.exports.bb(11))
 });
