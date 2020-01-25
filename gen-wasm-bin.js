@@ -20,6 +20,30 @@ function u8tree2u8array(tree) {
     return a;
 }
 
+function makeI32(i) {
+    if (i < 0) {
+        if (-0x00000040 <= i) return i & 0x7f;
+        if (-0x00002000 <= i) return [0x80 | (i & 0x7f), (i >> 7) & 0x7f];
+        if (-0x00100000 <= i) return [0x80 | (i & 0x7f), 0x80 | ((i >> 7) & 0x7f), (i >> 14) & 0x7f];
+        if (-0x08000000 <= i) return [0x80 | (i & 0x7f), 0x80 | ((i >> 7) & 0x7f), 0x80 | ((i >> 14) & 0x7f), (i >> 21) & 0x7f];
+        return [0x80 | (i & 0x7f), 0x80 | ((i >> 7) & 0x7f), 0x80 | ((i >> 14) & 0x7f), 0x80 | ((i >> 21) & 0x7f), (i >> 28) & 0x7f];
+    } else {
+        if (i < 0x00000040) return i;
+        if (i < 0x00002000) return [0x80 | (i & 0x7f), i >> 7];
+        if (i < 0x00100000) return [0x80 | (i & 0x7f), 0x80 | ((i >> 7) & 0x7f), i >> 14];
+        if (i < 0x08000000) return [0x80 | (i & 0x7f), 0x80 | ((i >> 7) & 0x7f), 0x80 | ((i >> 14) & 0x7f), i >> 21];
+        return [0x80 | (i & 0x7f), 0x80 | ((i >> 7) & 0x7f), 0x80 | ((i >> 14) & 0x7f), 0x80 | ((i >> 21) & 0x7f), i >> 28 ];
+    }
+}
+
+function makeU32(i) {
+    if (i < 0x00000080) return i;
+    if (i < 0x00004000) return [0x80 | (i & 0x7f), i >> 7];
+    if (i < 0x00200000) return [0x80 | (i & 0x7f), 0x80 | ((i >> 7) & 0x7f), i >> 14];
+    if (i < 0x10000000) return [0x80 | (i & 0x7f), 0x80 | ((i >> 7) & 0x7f), 0x80 | ((i >> 14) & 0x7f), i >> 21];
+    return [0x80 | (i & 0x7f), 0x80 | ((i >> 7) & 0x7f), 0x80 | ((i >> 14) & 0x7f), 0x80 | ((i >> 21) & 0x7f), i >> 28 ];
+}
+
 function makeMagic() {
     return [ 0x00, 0x61, 0x73, 0x6d ]; // '\0asm'
 }
@@ -85,7 +109,7 @@ const functions = [
         param: [],
         result: [0x7f], // (result i32)
         locals: [],
-        code: [0x41, 0x01] // (i32.const 1)
+        code: [0x41, makeI32(0xff)] // (i32.const 255)
     },
     {
         exported: true,
