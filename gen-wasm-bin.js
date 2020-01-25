@@ -67,9 +67,15 @@ function makeExportSec(fs) {
     return makeSection(0x07, body);
 }
 
-function makeCodeSec(a) {
-    const body = makeVec([[0x02, 0x00, 0x0b]]);
-    return makeSection(0x0a, body);
+function makeCode(f) {
+    const locals = makeVec(f.locals);
+    const body = [f.code, 0x0b];
+    return [ countLeaves(locals) + countLeaves(body), locals, body];
+}
+
+function makeCodeSec(fs) {
+    const body = makeVec(fs.map(makeCode));
+    return makeSection(0x0a, body)
 }
 
 const functions = [
@@ -89,7 +95,7 @@ const bufferSource = u8tree2u8array([
     makeTypeSec(functions),
     makeFuncSec(functions),
     makeExportSec(functions),
-    makeCodeSec()
+    makeCodeSec(functions)
 ]);
 
 const importObject = {};
