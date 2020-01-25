@@ -53,15 +53,15 @@ function makeVersion() {
 }
 
 function makeVec(v) {
-    return [ v.length, v ];
+    return [ makeU32(v.length), v ];
 }
 
 function makeString(s) {
-    return [ s.length, Array.from(s, ch => ch.charCodeAt(0))]
+    return [ makeU32(s.length), Array.from(s, ch => ch.charCodeAt(0))]
 }
 
 function makeSection(id, body) {
-    return [id, countLeaves(body), body];
+    return [id, makeU32(countLeaves(body)), body];
 }
 
 function makeFuncType(f) {
