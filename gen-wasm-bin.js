@@ -54,8 +54,16 @@ function makeFuncSec(a) {
     return makeSection(0x03, body);
 }
 
-function makeExportSec(a) {
-    const body = makeVec([[makeString("a"), 0x00, 0x00]]);
+function makeExport(name, typeid, index) {
+    return [ makeString(name), typeid, index ];
+}
+
+function makeFuncExport(name, index) {
+    return makeExport(name, 0x00, index)
+}
+
+function makeExportSec(fs) {
+    const body = makeVec(fs.map((f, i) => f.exported ? makeFuncExport(f.name, i) : null).filter(x => x));
     return makeSection(0x07, body);
 }
 
@@ -80,7 +88,7 @@ const bufferSource = u8tree2u8array([
     makeVersion(),
     makeTypeSec(functions),
     makeFuncSec(),
-    makeExportSec(),
+    makeExportSec(functions),
     makeCodeSec()
 ]);
 
