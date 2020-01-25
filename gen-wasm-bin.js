@@ -49,8 +49,8 @@ function makeTypeSec(fs) {
     return makeSection(0x01, body);
 }
 
-function makeFuncSec(a) {
-    const body = makeVec([[0x00]]);
+function makeFuncSec(fs) {
+    const body = makeVec(fs.map((_, i) => i));
     return makeSection(0x03, body);
 }
 
@@ -87,7 +87,7 @@ const bufferSource = u8tree2u8array([
     makeMagic(),
     makeVersion(),
     makeTypeSec(functions),
-    makeFuncSec(),
+    makeFuncSec(functions),
     makeExportSec(functions),
     makeCodeSec()
 ]);
