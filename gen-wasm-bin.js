@@ -36,36 +36,28 @@ function makeString(s) {
     return [ s.length, Array.from(s, ch => ch.charCodeAt(0))]
 }
 
+function makeSection(id, body) {
+    return [id, countLeaves(body), body];
+}
+
 function makeTypeSec() {
-    return [
-        0x01, // section id: type section
-        0x04, // section size
-        makeVec([[ 0x60, 0x00, 0x00 ]])
-    ]
+    const body = makeVec([[ 0x60, 0x00, 0x00 ]]);
+    return makeSection(0x01, body);
 }
 
 function makeFuncSec(a) {
-    return [
-        0x03, // section id: function section
-        0x02, // section size
-        makeVec([[0x00]])
-    ];
+    const body = makeVec([[0x00]]);
+    return makeSection(0x03, body);
 }
 
 function makeExportSec(a) {
-    return [
-        0x07, // section id: export section
-        0x05, // section size
-        makeVec([[makeString("a"), 0x00, 0x00]])
-    ]
+    const body = makeVec([[makeString("a"), 0x00, 0x00]]);
+    return makeSection(0x07, body);
 }
 
 function makeCodeSec(a) {
-    return [
-        0x0a, // section id: code section
-        0x04, // section size
-        makeVec([[0x02, 0x00, 0x0b]])
-    ];
+    const body = makeVec([[0x02, 0x00, 0x0b]]);
+    return makeSection(0x0a, body);
 }
 
 const bufferSource = u8tree2u8array([
